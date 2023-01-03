@@ -7,5 +7,12 @@
 
 import Foundation
 
-print("Hello, World!")
+let people: [Person] = [
+    .scarlet,
+    .mustard,
+    .plum
+]
+
+let gameState = GameState(people: people)
+
 
