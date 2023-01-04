@@ -10,7 +10,7 @@ import Foundation
 /**
  * A room, weapon, or character in the game of Clue
  */
-enum Card: CustomStringConvertible {
+enum Card: CustomStringConvertible, Equatable {
     case roomCard(Room)
     case playerCard(Person)
     case weaponCard(Weapon)
@@ -40,6 +40,18 @@ enum Card: CustomStringConvertible {
             return nil
         }
     }
+    
+    init(_ person: Person) {
+        self = .playerCard(person)
+    }
+    
+    init(_ weapon: Weapon) {
+        self = .weaponCard(weapon)
+    }
+    
+    init(_ room: Room) {
+        self = .roomCard(room)
+    }
 }
 
 /**
@@ -56,7 +68,24 @@ enum Room: CaseIterable, CustomStringConvertible {
     case lounge
     
     var description: String {
-        "\(self)"
+        switch self {
+        case .ballroom:
+            return "ballroom"
+        case .dining:
+            return "dining"
+        case .study:
+            return "study"
+        case .kitchen:
+            return "kitchen"
+        case .conservatory:
+            return "conservatory"
+        case .billiard:
+            return "billiard"
+        case .hall:
+            return "hall"
+        case .lounge:
+            return "lounge"
+        }
     }
     
     init?(_ string: String) {
@@ -95,7 +124,20 @@ enum Person: CaseIterable, CustomStringConvertible {
     case mustard
     
     var description: String {
-        "\(self)"
+        switch self {
+        case .scarlet:
+            return "scarlet"
+        case .white:
+            return "white"
+        case .peacock:
+            return "peacock"
+        case .plum:
+            return "plum"
+        case .green:
+            return "green"
+        case .mustard:
+            return "mustard"
+        }
     }
     
     init?(_ string: String) {
@@ -130,7 +172,20 @@ enum Weapon: CaseIterable, CustomStringConvertible {
     case wrench
     
     var description: String {
-        "\(self)"
+        switch self {
+        case .candlestick:
+            return "candlestick"
+        case .knife:
+            return "knife"
+        case .pipe:
+            return "pipe"
+        case .revolver:
+            return "revolver"
+        case .rope:
+            return "rope"
+        case .wrench:
+            return "wrench"
+        }
     }
     
     init?(_ string: String) {
@@ -286,14 +341,32 @@ class Game {
             
                 while i != turnIndex {
                     
-                    if let disprovement = players[i].disprove(statement) {
-                        // show that the player disproved the statement,
+                    var disproved = false
+                    
+                    if let cpu = players[i] as? any ComputerPlayer {
+                        if let disprovement = cpu.disprove(statement) {
+                            // show that the player disproved the statement,
+                            
+                            disproved = true
+                            
+                            print("\(cpu.name) CAN disprove the suggestion.")
+                            players[turnIndex].show(disprovement, from: cpu.character)
+                        } else {
+                            print("\(cpu.name) (aka \(cpu.character)) CANNOT disprove the suggesion.")
+                        }
+                    } else {
+                        let human = players[i] as! Human
                         
+                        if human.canDisprove(statement) {
+                            disproved = true
+                        }
+                    }
+                    
+                    if disproved {
                         gameState.log(
                             person: players[turnIndex].character,
                             turnSummary: .suggestionDisproved(statement, disprover: players[i].character)
                         )
-                        
                         break
                     }
                 

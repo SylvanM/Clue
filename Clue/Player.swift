@@ -27,4 +27,9 @@ protocol Player {
      */
     func makeTurn() -> Action
     
+    /**
+     * Called when they are showed a card to disprove their suggestion
+     */
+    func show(_: Card, from: Person)
+    
 }

@@ -51,25 +51,23 @@ class Knowledge {
     var cards: [Person : [Card]]
     
     /**
-     * The publically available game state
+     * The publically available game state, set by subscribing to an ongoing game.
      */
-    let game: GameState
+    var game: GameState!
     
     // MARK: Initializers
     
     /**
      * Creates a game given a certain number of players, and the cards in this players hand.
      *
-     * - Parameter game: The game!
      * - Parameter asPlayer: Me!
      * - Parameter players: A record of all players in the game, and how many cards they have.
      * - Parameter myCards: All cards dealt to this player in the game.
      */
-    init(forGame game: GameState, asPlayer: Person, players: [Person : Int], myCards: [Card]) {
-        self.game = game
-        me = asPlayer
-        cards = [:]
-        locations = [:]
+    init(asPlayer: Person, players: [Person : Int], myCards: [Card]) {
+        self.me = asPlayer
+        self.cards = [:]
+        self.locations = [:]
         
         for (player, cardCount) in players {
             cards[player] = [Card](repeating: .unknown, count: cardCount)

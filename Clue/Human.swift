@@ -14,8 +14,8 @@ class Human: Player {
     var name: String
     
     func canDisprove(_ suggestion: Statement) -> Bool {
-        print("Can \(name) disprove this? Enter the disproving card, or type 'no': ")
-        return Card(readLine()!)
+        print("Can \(name) disprove this? Enter Y/N: ")
+        return readLine()!.lowercased() == "y"
     }
     
     func makeTurn() -> Action {
@@ -43,6 +43,10 @@ class Human: Player {
         default:
             return .travel
         }
+    }
+    
+    func show(_ card: Card, from person: Person) {
+        print("\(person) shows \(name) the card: \(card)")
     }
     
     required init(_ name: String, asCharacter character: Person) {
