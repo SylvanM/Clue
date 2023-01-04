@@ -7,12 +7,12 @@
 
 import Foundation
 
-let people: [Person] = [
-    .scarlet,
-    .mustard,
-    .plum
+let players = [
+    Human("Sylvan", asCharacter: .mustard),
+    Human("Celeste", asCharacter: .plum),
+    Human("Camille", asCharacter: .green),
 ]
 
-let gameState = GameState(people: people)
+let game = Game(players: players)
 
-
+game.runGame()
