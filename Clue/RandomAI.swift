@@ -62,6 +62,8 @@ class RandomAI: ComputerPlayer {
     func makeTurn() -> Action {
         // literally just travel
         
+        
+        
         return .travel
     }
     
@@ -72,6 +74,19 @@ class RandomAI: ComputerPlayer {
         
         if knowledge.cards[person]!.indices.contains(i) {
             knowledge.cards[person]![i] = card
+        }
+        
+        // Cross that card off the notebook
+        
+        switch card {
+        case .roomCard(let room):
+            knowledge.notebook.rooms[room] = .ruledOut
+        case .playerCard(let person):
+            knowledge.notebook.people[person] = .ruledOut
+        case .weaponCard(let weapon):
+            knowledge.notebook.weapons[weapon] = .ruledOut
+        case .unknown:
+            fatalError("This should never happen.")
         }
     }
     

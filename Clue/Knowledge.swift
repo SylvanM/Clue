@@ -22,7 +22,11 @@ class Knowledge {
         case unknown
     }
     
-    typealias NoteBook = (people: [Person : InformationStatus], weapons: [Weapon : InformationStatus], rooms: [Room : InformationStatus])
+    typealias NoteBook = (
+        people:     [Person : InformationStatus],
+        weapons:    [Weapon : InformationStatus],
+        rooms:      [Room   : InformationStatus]
+    )
     
     // MARK: Properties
     
