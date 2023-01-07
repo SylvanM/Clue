@@ -239,19 +239,56 @@ func readStatement(_ string: String) -> Statement? {
 /**
  * An action you can take in a game of Clue
  */
-enum Action {
+indirect enum Action {
+    
+    /**
+     * Suspect a person, weapon, and room
+     */
     case suggest(Statement)
+    
+    /**
+     * Ultimately ACCUSE someone!
+     */
     case accuse(Statement)
-    case travel
+    
+    /**
+     * Indicate traveling with a room in mind
+     */
+    case travel(to: Room)
+    
+    /**
+     * End the turn.
+     */
+    case end
 }
 
 /**
  * An entry in the log, saying what happened in one turn
  */
-enum TurnSummary {
-    case travel
-    case suggestionDisproved(Statement, disprover: Person)
-    case suggestionUnrefuted(Statement)
+indirect enum TurnSummary {
+    
+    /**
+     * The player traveled toward a specific room (or at least it seems as if they did)
+     */
+    case travel(to: Room)
+    
+    /**
+     * The player made a suggestion that was disproved by `disprover`
+     *
+     * if `withAccusation` is not `nil`, then the player also made an accusation on this turn following the suggestion.
+     */
+    case suggestionDisproved(Statement, disprover: Person, withAccusation: TurnSummary?)
+    
+    /**
+     * The player made an unrefuted suggestion
+     *
+     * If `withAccusation` is not `nil`, then the player also made an acusation on this turn following the suggestion
+     */
+    case suggestionUnrefuted(Statement, withAccusation: TurnSummary?)
+    
+    /**
+     * The player made an accusation
+     */
     case accuse(Statement, wasCorrect: Bool)
 }
 
@@ -329,11 +366,7 @@ class Game {
         var gameInProgress = true
         var turnIndex = 0
         
-        while gameInProgress {
-            print("\n")
-            
-            let action = players[turnIndex].makeTurn()
-            
+        func handleAction(_ action: Action) {
             switch action {
             case .suggest(let statement):
                 
@@ -380,17 +413,27 @@ class Game {
                 
             case .accuse(_):
                 
-                
-                
                 gameInProgress = false
                 
                 // Either win the game for a player, get this player out (in which case it ends)
                 // or another player's cards all get revealed!
                 
-            case .travel:
-                // Do nothing I guess, just move on to the next player!
-                break
+            case .travel(arrivingIn: let optionalRoom):
+                // update locations if need be!
+                if let room = optionalRoom {
+                    gameState.locations[players[turnIndex].character] = .inRoom(room)
+                }
+            case .multiple(firstAction: let firstAction, secondAction: let secondAction):
+                <#code#>
             }
+        }
+        
+        while gameInProgress {
+            print("\n")
+            
+            let action = players[turnIndex].makeTurn()
+            
+            handleAction(action)
             
             turnIndex += 1
             turnIndex %= players.count
