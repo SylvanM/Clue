@@ -12,8 +12,8 @@
 		AE21D5952963DED700004778 /* Knowledge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21D5942963DED700004778 /* Knowledge.swift */; };
 		AE21D5992963ED2A00004778 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21D5982963ED2A00004778 /* Player.swift */; };
 		AE21D59B2964863700004778 /* Human.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21D59A2964863700004778 /* Human.swift */; };
-		AE21D59F2964DEDE00004778 /* ComputerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21D59E2964DEDE00004778 /* ComputerPlayer.swift */; };
 		AE21D5A12965409000004778 /* RandomAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE21D5A02965409000004778 /* RandomAI.swift */; };
+		AE721DAF2973CFB500862782 /* ComputerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE721DAE2973CFB500862782 /* ComputerPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,8 +35,8 @@
 		AE21D5942963DED700004778 /* Knowledge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Knowledge.swift; sourceTree = "<group>"; };
 		AE21D5982963ED2A00004778 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		AE21D59A2964863700004778 /* Human.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Human.swift; sourceTree = "<group>"; };
-		AE21D59E2964DEDE00004778 /* ComputerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputerPlayer.swift; sourceTree = "<group>"; };
 		AE21D5A02965409000004778 /* RandomAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAI.swift; sourceTree = "<group>"; };
+		AE721DAE2973CFB500862782 /* ComputerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputerPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +53,7 @@
 		AE21D57F29638E0200004778 = {
 			isa = PBXGroup;
 			children = (
+				AE721DAE2973CFB500862782 /* ComputerPlayer.swift */,
 				AE21D58A29638E0200004778 /* Clue */,
 				AE21D58929638E0200004778 /* Products */,
 			);
@@ -69,7 +70,6 @@
 		AE21D58A29638E0200004778 /* Clue */ = {
 			isa = PBXGroup;
 			children = (
-				AE21D59E2964DEDE00004778 /* ComputerPlayer.swift */,
 				AE21D58B29638E0200004778 /* main.swift */,
 				AE21D5922963DAFF00004778 /* Game.swift */,
 				AE21D5942963DED700004778 /* Knowledge.swift */,
@@ -144,7 +144,7 @@
 				AE21D59B2964863700004778 /* Human.swift in Sources */,
 				AE21D58C29638E0200004778 /* main.swift in Sources */,
 				AE21D5932963DAFF00004778 /* Game.swift in Sources */,
-				AE21D59F2964DEDE00004778 /* ComputerPlayer.swift in Sources */,
+				AE721DAF2973CFB500862782 /* ComputerPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

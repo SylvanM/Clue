@@ -25,11 +25,33 @@ protocol Player {
     /**
      * Called on the player's turn to get what they want to do with their turn
      */
-    func makeTurn() -> Action
+    func makeTurn()
     
     /**
      * Called when they are showed a card to disprove their suggestion
      */
     func show(_: Card, from: Person)
+    
+    /**
+     * Returns whether or not this player can disprove a suggestion
+     */
+    func canDisprove(_: Statement) -> Bool
+    
+    /**
+     * Tells a player that a certain notable action happened
+     */
+    func receive(_: Event)
+    
+    /**
+     * Called to get which card to show upon a suggestion being made
+     */
+    func disprove(_ suggestion: Statement) -> Card?
+    
+    /**
+     * Reveals all cards, used when this player is out.
+     */
+    func revealCards() -> [Card]
+    
+    func setGame(to game: Game)
     
 }

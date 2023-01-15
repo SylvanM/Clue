@@ -9,49 +9,125 @@ import Foundation
 
 class Human: Player {
     
+    // MARK: Properties
+    
+    var game: Game!
+    
     var character: Person
     
     var name: String
+    
+    // MARK: Initializers
+    
+    required init(_ name: String, asCharacter character: Person) {
+        self.name = name
+        self.character = character
+    }
+    
+    // MARK: Housekeeping
+    
+    func setGame(to game: Game) {
+        self.game = game
+    }
+    
+    func receive(_: Event) {
+        // do nothing
+    }
+    
+    func show(_ card: Card, from person: Person) {
+        print("\(person) shows you the card: \(card)")
+    }
+    
+    func revealCards() -> [Card] {
+        var cards: [Card] = []
+        var input: String
+        
+        print("Please enter all of \(name)'s cards separated by lines. enter 'done' when done.")
+        
+        repeat {
+            input = readLine()!.lowercased()
+            if let card = Card(input) {
+                cards.append(card)
+            } else {
+                print("Please enter that card again.")
+                continue
+            }
+        } while input != "done"
+        
+        return cards
+    }
+    
+    // MARK: Gameplay
+    
+    func disprove(_ suggestion: Statement) -> Card? {
+        print("What card does \(name) show to disprove this? (enter card, or enter 'none')")
+        return Card(readLine()!)
+    }
     
     func canDisprove(_ suggestion: Statement) -> Bool {
         print("Can \(name) disprove this? Enter Y/N: ")
         return readLine()!.lowercased() == "y"
     }
     
-    func makeTurn() -> Action {
-        print("What is \(name) doing on this turn? (TRAVEL/suggest/accuse)")
-        let response = readLine()
-        switch response {
-        case "suggest":
-            print("Please enter the suspicion in the format 'person room weapon'")
+    func makeTurn() {
+        var input: String
+        
+        print("It is now \(character)'s (\(name)'s) turn. ", terminator: "")
+        
+        repeat {
+            print("Enter \(name)'s next action. (suggest/accuse/travel/done)")
             
-            guard let suggestion = readStatement(readLine()!) else {
-                print("Unable to read input. Starting turn over.")
-                return makeTurn()
+            input = readLine()!
+            
+            switch input {
+            case "suggest":
+                
+                print("Please enter \(name)'s suggestion in the format 'person room weapon'")
+                
+                var suggestionInput: String
+                var statement: Statement? = nil
+                
+                repeat {
+                    suggestionInput = readLine()!
+                    statement = readStatement(suggestionInput)
+                    if statement == nil {
+                        print("Please enter that statement again.")
+                    }
+                } while statement == nil
+                
+                game.handleSuspect(statement!, completion: nil)
+                
+            case "accuse":
+                
+                print("Please enter \(name)'s accusation in the format 'person room weapon'")
+                
+                var suggestionInput: String
+                var statement: Statement? = nil
+                
+                repeat {
+                    suggestionInput = readLine()!
+                    statement = readStatement(suggestionInput)
+                } while statement == nil
+                
+                game.handleAccuse(statement!)
+                
+            case "travel":
+                
+                print("enter the final destination of \(character). Either '<room>', or anything else will be interpreted as just walking around.")
+                
+                if let room = Room(readLine()!) {
+                    game.handleTravel(to: room, arrived: true)
+                } else {
+                    game.handleTravel()
+                }
+                
+            case "done":
+                return
+            default:
+                print("Unrecognized input '\(input)', try again.")
             }
             
-            return .suggest(suggestion)
-        case "accuse":
-            print("Please enter the accusation in the format 'person room weapon'")
-            
-            guard let accusation = readStatement(readLine()!) else {
-                print("Unable to read input. Starting turn over.")
-                return makeTurn()
-            }
-            
-            return .accuse(accusation)
-        default:
-            return .travel
-        }
-    }
-    
-    func show(_ card: Card, from person: Person) {
-        print("\(person) shows \(name) the card: \(card)")
-    }
-    
-    required init(_ name: String, asCharacter character: Person) {
-        self.name = name
-        self.character = character
+        } while input != "done"
     }
     
 }

@@ -12,6 +12,19 @@ import Foundation
  */
 class RandomAI: ComputerPlayer {
     
+    
+    
+    func makeTurn() {
+        //
+    }
+    
+    func canDisprove(_: Statement) -> Bool {
+        true
+    }
+    
+    
+    
+    
     // MARK: Properties
     
     var knowledge: Knowledge
@@ -20,6 +33,8 @@ class RandomAI: ComputerPlayer {
     
     var name: String
     
+    var game: Game!
+    
     var cards: [Card] {
         knowledge.cards[character]!
     }
@@ -27,6 +42,8 @@ class RandomAI: ComputerPlayer {
     var location: PlayerLocation {
         knowledge.locations[character]!
     }
+    
+    // MARK: Initializers
     
     /**
      * Creates a random AI with knowledge of their cards and other potentially necessary information
@@ -37,34 +54,19 @@ class RandomAI: ComputerPlayer {
         self.knowledge = knowledge
     }
     
-    func subscribe(to gameState: GameState) {
-        knowledge.game = gameState
+    // MARK: Housekeeping
+    
+    func receive(_: Event) {
+        
     }
     
-    func disprove(_ suggestion: Statement) -> Card? {
-        var optionsToShow: [Card] = []
-        
-        if cards.contains(where: { $0 == Card(suggestion.person) }) {
-            optionsToShow.append(Card(suggestion.person))
-        }
-        
-        if cards.contains(where: { $0 == Card(suggestion.weapon) }) {
-            optionsToShow.append(Card(suggestion.weapon))
-        }
-        
-        if cards.contains(where: { $0 == Card(suggestion.room) }) {
-            optionsToShow.append(Card(suggestion.room))
-        }
-        
-        return optionsToShow.randomElement()
+    func revealCards() -> [Card] {
+        cards
     }
     
-    func makeTurn() -> Action {
-        // literally just travel
-        
-        
-        
-        return .travel
+    func setGame(to game: Game) {
+        self.game = game
+        knowledge.game = game.gameState
     }
     
     func show(_ card: Card, from person: Person) {
@@ -90,7 +92,32 @@ class RandomAI: ComputerPlayer {
         }
     }
     
+    // MARK: Gameplay
     
+    func disprove(_ suggestion: Statement) -> Card? {
+        var optionsToShow: [Card] = []
+        
+        if cards.contains(where: { $0 == Card(suggestion.person) }) {
+            optionsToShow.append(Card(suggestion.person))
+        }
+        
+        if cards.contains(where: { $0 == Card(suggestion.weapon) }) {
+            optionsToShow.append(Card(suggestion.weapon))
+        }
+        
+        if cards.contains(where: { $0 == Card(suggestion.room) }) {
+            optionsToShow.append(Card(suggestion.room))
+        }
+        
+        return optionsToShow.randomElement()
+    }
     
+    func makeTurn() -> Action {
+        // literally just travel
+        
+        
+        
+        return .travel(to: .ballroom)
+    }
     
 }

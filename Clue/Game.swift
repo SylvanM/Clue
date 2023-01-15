@@ -214,7 +214,6 @@ enum Weapon: CaseIterable, CustomStringConvertible {
 enum PlayerLocation {
     case inRoom(Room)
     case walking
-    // TODO: In future versions, maybe indicate what room they are near or heading toward?
 }
 
 /**
@@ -223,7 +222,7 @@ enum PlayerLocation {
 typealias Statement = (person: Person, weapon: Weapon, room: Room)
 
 /**
- * Expects three words separated by spaces, in the order `person weapon room`
+ * Expects three words separated by spaces, in the order `person room weapon`
  */
 func readStatement(_ string: String) -> Statement? {
     let items = string.components(separatedBy: " ")
@@ -260,37 +259,44 @@ indirect enum Action {
      * End the turn.
      */
     case end
+    
 }
 
 /**
- * An entry in the log, saying what happened in one turn
+ * An entry in the log, saying what a player did that was notable. Multiple of these can be entered for one turn.
+ *
+ * As of this version of the program, this is NOT omnicient. This only records what I believe to be the most notable actions performec
+ * in a turn.
  */
-indirect enum TurnSummary {
+indirect enum NotableAction {
     
     /**
-     * The player traveled toward a specific room (or at least it seems as if they did)
+     * The player traveled.
      */
     case travel(to: Room)
     
     /**
      * The player made a suggestion that was disproved by `disprover`
-     *
-     * if `withAccusation` is not `nil`, then the player also made an accusation on this turn following the suggestion.
      */
-    case suggestionDisproved(Statement, disprover: Person, withAccusation: TurnSummary?)
+    case suggestionDisproved(Statement, disprover: Person)
+    
+    /**
+     * A certain player was unable to refute a statement given by the active character
+     */
+    case couldntRefute(Statement, person: Person)
     
     /**
      * The player made an unrefuted suggestion
-     *
-     * If `withAccusation` is not `nil`, then the player also made an acusation on this turn following the suggestion
      */
-    case suggestionUnrefuted(Statement, withAccusation: TurnSummary?)
+    case suggestionUnrefuted(Statement)
     
     /**
      * The player made an accusation
      */
     case accuse(Statement, wasCorrect: Bool)
 }
+
+typealias Event = (Person, NotableAction)
 
 /**
  * Represents the public state of the game. That is, where everyone is, and a log of what has transpired so far.
@@ -299,8 +305,8 @@ class GameState {
     
     // MARK: Properties
     
-    // A list, in order, of the actions of each turn in the game and who did them
-    var actionLog: [(Person, TurnSummary)] = []
+    /// A list, in order, of the actions of each turn in the game and who did them
+    var actionLog: [Event] = []
     
     var people: [Person]
     
@@ -312,7 +318,7 @@ class GameState {
         self.people = people
         
         self.locations = [:]
-        
+
         for player in self.people {
             self.locations[player] = .walking
         }
@@ -320,8 +326,8 @@ class GameState {
     
     // MARK: Methods
     
-    func log(person: Person, turnSummary: TurnSummary) {
-        actionLog.append((person, turnSummary))
+    func log(person: Person, action: NotableAction) {
+        actionLog.append((person, action))
     }
     
 }
@@ -336,12 +342,26 @@ class Game {
     /**
      * The list of players and their characters
      */
-    let players: [Player]
+    var players: [Player]
     
     /**
      * The updated game state, can be shared by many other classes
      */
     let gameState: GameState
+    
+    /**
+     * Who's turn it is, as an index in `players`
+     */
+    var turnIndex: Int = 0
+    
+    var gameRunning = true
+    
+    /**
+     * The player who's turn it is
+     */
+    var currentPlayer: Player {
+        players[turnIndex]
+    }
     
     // MARK: Initializers
     
@@ -351,94 +371,148 @@ class Game {
         self.gameState = GameState(people: players.map { $0.character })
         
         for player in players {
-            if player is ComputerPlayer {
-                (player as! any ComputerPlayer).subscribe(to: gameState)
-            }
+            player.setGame(to: self)
         }
     }
     
-    // MARK: Methods
+    // MARK: Player-Game Interation
+    
+    /**
+     * Tells every player of a specific action to occur
+     */
+    func broadcast(action: Event) {
+        for player in players {
+            player.receive(action)
+        }
+    }
+    
+    /**
+     * Called by a player to suspect people in the game. It is assumed that `players[turnIndex]` is the player making
+     * this suggestion.
+     *
+     * It is up to the players to handle showing the cards to each other. Calls completion when finished.
+     */
+    func handleSuspect(_ suggestion: Statement, completion: (() -> ())?) {
+        
+        // we circle around the group, going left, (the "positive" direction)
+        
+        print("\(currentPlayer.character) is suggesting \(suggestion.person) in the \(suggestion.room) with the \(suggestion.weapon). How will everyone respond?")
+        
+        // first, we re-locate the suggested person to the room!
+        if players.contains(where: { $0.character == suggestion.person }) {
+            gameState.locations[suggestion.person] = .inRoom(suggestion.room)
+        }
+        
+        var disproverIndex = (turnIndex + 1) % players.count
+        
+        var disprovingPlayer: Player {
+            players[disproverIndex]
+        }
+        
+        while disproverIndex != turnIndex {
+            
+            var disproven = false
+            
+            if currentPlayer is ComputerPlayer || players[disproverIndex] is ComputerPlayer {
+                
+                if let card = disprovingPlayer.disprove(suggestion) {
+                    currentPlayer.show(card, from: disprovingPlayer.character)
+                    disproven = true
+                }
+                
+            } else {
+                // human to human interactions are less interesting
+                
+                if disprovingPlayer.canDisprove(suggestion) {
+                    disproven = true
+                }
+            }
+            
+            if disproven {
+                gameState.log(
+                    person: currentPlayer.character,
+                    action: .suggestionDisproved(suggestion, disprover: disprovingPlayer.character)
+                )
+                
+                completion?()
+                return
+            } else {
+                gameState.log(
+                    person: currentPlayer.character,
+                    action: .couldntRefute(suggestion, person: disprovingPlayer.character)
+                )
+            }
+            
+            disproverIndex += 1
+            disproverIndex %= players.count
+            
+        }
+        
+        gameState.log(person: currentPlayer.character, action: .suggestionUnrefuted(suggestion))
+        
+        completion?()
+        
+    }
+    
+    /**
+     * Handles when a player makes an accusation
+     */
+    func handleAccuse(_ statement: Statement) {
+        
+        print("\(currentPlayer.character) ACCUSES \(statement.person) in the \(statement.room) with the \(statement.weapon)!")
+        
+        print("Is this accusation correct? (Enter Y/N)")
+        let correct = readLine()!.lowercased() == "y"
+        
+        if correct {
+            print("Congrats to \(currentPlayer.name) for winning the game!")
+            gameRunning = false
+        } else {
+            
+            // show the cards
+            
+            for card in currentPlayer.revealCards() {
+                for player in players {
+                    player.show(card, from: currentPlayer.character)
+                }
+            }
+            
+            // kick them out!
+            
+            players.remove(at: turnIndex)
+            turnIndex %= players.count
+        }
+        
+    }
+    
+    /**
+     * Handles a player traveling
+     */
+    func handleTravel(to target: Room? = nil, arrived: Bool = false) {
+        if arrived {
+            let room = target!
+            gameState.locations[currentPlayer.character] = .inRoom(room)
+        } else {
+            gameState.locations[currentPlayer.character] = .walking
+        }
+    }
+    
+    // MARK: Running the Game
     
     func runGame() {
         
-        print("Starting the game!")
-        
-        var gameInProgress = true
-        var turnIndex = 0
-        
-        func handleAction(_ action: Action) {
-            switch action {
-            case .suggest(let statement):
-                
-                var i = turnIndex + 1
+        while gameRunning {
             
-                while i != turnIndex {
-                    
-                    var disproved = false
-                    
-                    if let cpu = players[i] as? any ComputerPlayer {
-                        if let disprovement = cpu.disprove(statement) {
-                            // show that the player disproved the statement,
-                            
-                            disproved = true
-                            
-                            print("\(cpu.name) CAN disprove the suggestion.")
-                            players[turnIndex].show(disprovement, from: cpu.character)
-                        } else {
-                            print("\(cpu.name) (aka \(cpu.character)) CANNOT disprove the suggesion.")
-                        }
-                    } else {
-                        let human = players[i] as! Human
-                        
-                        if human.canDisprove(statement) {
-                            disproved = true
-                        }
-                    }
-                    
-                    if disproved {
-                        gameState.log(
-                            person: players[turnIndex].character,
-                            turnSummary: .suggestionDisproved(statement, disprover: players[i].character)
-                        )
-                        break
-                    }
-                
-                    i += 1
-                    i %= players.count
-                }
-                
-                if i == turnIndex {
-                    gameState.log(person: players[turnIndex].character, turnSummary: .suggestionUnrefuted(statement))
-                }
-                
-            case .accuse(_):
-                
-                gameInProgress = false
-                
-                // Either win the game for a player, get this player out (in which case it ends)
-                // or another player's cards all get revealed!
-                
-            case .travel(arrivingIn: let optionalRoom):
-                // update locations if need be!
-                if let room = optionalRoom {
-                    gameState.locations[players[turnIndex].character] = .inRoom(room)
-                }
-            case .multiple(firstAction: let firstAction, secondAction: let secondAction):
-                <#code#>
-            }
-        }
-        
-        while gameInProgress {
-            print("\n")
+            print("START of a new turn.")
+            print(gameState.locations)
             
-            let action = players[turnIndex].makeTurn()
+            currentPlayer.makeTurn()
             
-            handleAction(action)
+            print("\n\n")
             
             turnIndex += 1
             turnIndex %= players.count
         }
-        
     }
     
 }
