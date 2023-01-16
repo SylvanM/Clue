@@ -107,6 +107,9 @@ class Human: Player {
                 repeat {
                     suggestionInput = readLine()!
                     statement = readStatement(suggestionInput)
+                    if statement == nil {
+                        print("Unrecognized input. Please enter the accusation again.")
+                    }
                 } while statement == nil
                 
                 game.handleAccuse(statement!)

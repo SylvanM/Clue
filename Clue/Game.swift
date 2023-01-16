@@ -10,7 +10,7 @@ import Foundation
 /**
  * A room, weapon, or character in the game of Clue
  */
-enum Card: CustomStringConvertible, Equatable {
+enum Card: CustomStringConvertible, Equatable, Hashable {
     case roomCard(Room)
     case playerCard(Person)
     case weaponCard(Weapon)
@@ -227,6 +227,8 @@ typealias Statement = (person: Person, weapon: Weapon, room: Room)
 func readStatement(_ string: String) -> Statement? {
     let items = string.components(separatedBy: " ")
     
+    if items.count != 3 { return nil }
+    
     guard let person = Person(items[0]) else { return nil }
     guard let room   = Room(items[1])   else { return nil }
     guard let weapon = Weapon(items[2]) else { return nil }
@@ -390,9 +392,9 @@ class Game {
      * Called by a player to suspect people in the game. It is assumed that `players[turnIndex]` is the player making
      * this suggestion.
      *
-     * It is up to the players to handle showing the cards to each other. Calls completion when finished.
+     * It is up to the players to handle showing the cards to each other. Calls with every notable action that happens.
      */
-    func handleSuspect(_ suggestion: Statement, completion: (() -> ())?) {
+    func handleSuspect(_ suggestion: Statement, completion: ((NotableAction) -> ())?) {
         
         // we circle around the group, going left, (the "positive" direction)
         
@@ -429,18 +431,23 @@ class Game {
             }
             
             if disproven {
+                
+                let action = NotableAction.suggestionDisproved(suggestion, disprover: disprovingPlayer.character)
+                
                 gameState.log(
                     person: currentPlayer.character,
-                    action: .suggestionDisproved(suggestion, disprover: disprovingPlayer.character)
+                    action: action
                 )
                 
-                completion?()
+                completion?(action)
                 return
             } else {
+                let action = NotableAction.couldntRefute(suggestion, person: disprovingPlayer.character)
                 gameState.log(
                     person: currentPlayer.character,
-                    action: .couldntRefute(suggestion, person: disprovingPlayer.character)
+                    action: action
                 )
+                completion?(action)
             }
             
             disproverIndex += 1
@@ -448,9 +455,9 @@ class Game {
             
         }
         
-        gameState.log(person: currentPlayer.character, action: .suggestionUnrefuted(suggestion))
-        
-        completion?()
+        let action = NotableAction.suggestionUnrefuted(suggestion)
+        gameState.log(person: currentPlayer.character, action: action)
+        completion?(action)
         
     }
     
@@ -489,11 +496,18 @@ class Game {
      * Handles a player traveling
      */
     func handleTravel(to target: Room? = nil, arrived: Bool = false) {
+        print("\(currentPlayer.name) travels", terminator: "")
         if arrived {
             let room = target!
             gameState.locations[currentPlayer.character] = .inRoom(room)
+            print(" into the \(room).")
         } else {
             gameState.locations[currentPlayer.character] = .walking
+            if let room = target {
+                print(" towards the \(room).")
+            } else {
+                print(".")
+            }
         }
     }
     

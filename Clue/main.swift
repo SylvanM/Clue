@@ -29,7 +29,7 @@ let players: [Player] = [
     Human("Sylvan", asCharacter: .mustard),
     Human("Celeste", asCharacter: .plum),
     Human("Camille", asCharacter: .green),
-    RandomAI("Random AI", withStartingKnowledge: aiKnowledge)
+    DummyAI("Random AI", withStartingKnowledge: aiKnowledge)
 ]
 
 let game = Game(players: players)

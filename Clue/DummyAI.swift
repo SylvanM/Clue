@@ -10,7 +10,7 @@ import Foundation
 /**
  * A Clue AI that makes random moves
  */
-class RandomAI: ComputerPlayer {
+class DummyAI: ComputerPlayer {
     
     
     
@@ -110,14 +110,6 @@ class RandomAI: ComputerPlayer {
         }
         
         return optionsToShow.randomElement()
-    }
-    
-    func makeTurn() -> Action {
-        // literally just travel
-        
-        
-        
-        return .travel(to: .ballroom)
     }
     
 }

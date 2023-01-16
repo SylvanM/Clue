@@ -55,6 +55,18 @@ class Knowledge {
     var cards: [Person : [Card]]
     
     /**
+     * Keep track of what players certainly DON'T have certain cards
+     *
+     * This dictionary does NOT include `self.character` as a key.
+     */
+    var antiCards: [Person : [Card]]
+    
+    /**
+     * Sometimes a player disproves a suggestion and you know they must have ONE of those cards!
+     */
+    var oneOfThese: [Person : Set<Card>]
+    
+    /**
      * The publically available game state, set by subscribing to an ongoing game.
      */
     var game: GameState!
@@ -72,10 +84,15 @@ class Knowledge {
         self.me = asPlayer
         self.cards = [:]
         self.locations = [:]
+        self.antiCards = [:]
+        self.oneOfThese = [:]
         
         for (player, cardCount) in players {
             cards[player] = [Card](repeating: .unknown, count: cardCount)
             locations[player] = .walking
+            if player != me {
+                antiCards[player] = []
+            }
         }
         
         cards[me] = myCards
