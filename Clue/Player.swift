@@ -50,7 +50,7 @@ protocol Player {
     /**
      * Reveals all cards, used when this player is out.
      */
-    func revealCards() -> [Card]
+    func revealCards() -> Set<Card>
     
     func setGame(to game: Game)
     

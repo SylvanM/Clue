@@ -1,0 +1,33 @@
+{
+  "" : {
+    "dependencies" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/Clue.build/Debug/Clue.build/Objects-normal/arm64/Clue-master.d",
+    "diagnostics" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/Clue.build/Debug/Clue.build/Objects-normal/arm64/Clue-master.dia",
+    "emit-module-dependencies" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/Clue.build/Debug/Clue.build/Objects-normal/arm64/Clue-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/Clue.build/Debug/Clue.build/Objects-normal/arm64/Clue-master-emit-module.dia",
+    "swift-dependencies" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/Clue.build/Debug/Clue.build/Objects-normal/arm64/Clue-master.swiftdeps"
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/BasicAI.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/ComputerPlayer.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/DummyAI.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Game.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Human.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Knowledge.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/main.swift" : {
+
+  },
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Player.swift" : {
+
+  }
+}

@@ -22,8 +22,17 @@ class BasicAI: ComputerPlayer {
     
     var game: Game!
     
-    var cards: [Card] {
-        knowledge.cards[character]!
+    var cards: Set<Card> {
+        knowledge.knownCards[character]!
+    }
+    
+    var currentRoom: Room? {
+        switch location {
+        case .inRoom(let room):
+            return room
+        case .walking:
+            return nil
+        }
     }
     
     var location: PlayerLocation {
@@ -43,15 +52,11 @@ class BasicAI: ComputerPlayer {
     
     // MARK: Housekeeping
     
-    func receive(_: Event) {
-        
-    }
-    
     func canDisprove(_: Statement) -> Bool {
         fatalError("This should never be called on a computer player")
     }
     
-    func revealCards() -> [Card] {
+    func revealCards() -> Set<Card> {
         cards
     }
     
@@ -61,13 +66,7 @@ class BasicAI: ComputerPlayer {
     }
     
     func show(_ card: Card, from person: Person) {
-        var i = 0
-        
-        while knowledge.cards[person]![i] != .unknown { i += 1 }
-        
-        if knowledge.cards[person]!.indices.contains(i) {
-            knowledge.cards[person]![i] = card
-        }
+        knowledge.knownCards[person]?.insert(card)
         
         // Cross that card off the notebook
         
@@ -86,7 +85,7 @@ class BasicAI: ComputerPlayer {
     func getCloseRooms() -> [Room] {
         var rooms: [Room] = []
         var input: String = ""
-        print("Please enter all the possible rooms that \(name) can go to on this turn. Enter 'none' when done.")
+        print("Please enter all the possible rooms that \(name) can go to on this turn. Enter 'done' when done.")
         
         repeat {
             input = readLine()!
@@ -105,46 +104,53 @@ class BasicAI: ComputerPlayer {
     /**
      * All the possible rooms still not ruled out
      */
-    var suspiciousRooms: [Room] {
-        knowledge.notebook.rooms.filter { (key: Room, value: Knowledge.InformationStatus) in
+    var suspiciousRooms: Set<Room> {
+        let array = knowledge.notebook.rooms.filter { (key: Room, value: Knowledge.InformationStatus) in
             value != .ruledOut
         }.map { (key: Room, _) in
             key
         }
+        
+        return Set(array)
     }
     
     /**
      * All the possible weapons still not ruled out
      */
-    var suspiciousWeapons: [Weapon] {
-        knowledge.notebook.weapons.filter { (key: Weapon, value: Knowledge.InformationStatus) in
+    var suspiciousWeapons: Set<Weapon> {
+        let array = knowledge.notebook.weapons.filter { (key: Weapon, value: Knowledge.InformationStatus) in
             value != .ruledOut
         }.map { (key: Weapon, _) in
             key
         }
+        
+        return Set(array)
     }
     
     /**
      * All the possible people still not ruled out
      */
-    var suspiciousPeople: [Person] {
-        knowledge.notebook.people.filter { (key: Person, value: Knowledge.InformationStatus) in
+    var suspiciousPeople: Set<Person> {
+        let array = knowledge.notebook.people.filter { (key: Person, value: Knowledge.InformationStatus) in
             value != .ruledOut
         }.map { (key: Person, _) in
             key
         }
+        
+        return Set(array)
     }
     
     func isSuspicious(_ room: Room) -> Bool {
-        suspiciousRooms.contains { $0 == room }
+        print("Checking if \(room) is suspicious, since rooms are \(suspiciousRooms)")
+        return suspiciousRooms.contains(room)
     }
     
     func isSuspicious(_ weapon: Weapon) -> Bool {
-        suspiciousWeapons.contains { $0 == weapon }
+        suspiciousWeapons.contains(weapon)
     }
     
     func isSuspicious(_ person: Person) -> Bool {
-        suspiciousPeople.contains { $0 == person }
+        suspiciousPeople.contains(person)
     }
     
     func inSuspiciousRoom() -> Bool {
@@ -181,7 +187,48 @@ class BasicAI: ComputerPlayer {
             optionsToShow.append(Card(suggestion.room))
         }
         
+        if optionsToShow.isEmpty {
+            print("\(name) cannot disprove this.")
+        }
+        
         return optionsToShow.randomElement()
+    }
+    
+    func receive(_ event: Event) {
+        
+        let (person, action) = event
+        
+        if person == knowledge.me {
+            // we already handle when it's us, skip over this!
+            return
+        }
+        
+        switch action {
+            
+        case .suggestionDisproved(let statement, let disprover):
+            
+            knowledge.oneOfThese[disprover]?.insert(.roomCard(statement.room))
+            knowledge.oneOfThese[disprover]?.insert(.playerCard(statement.person))
+            knowledge.oneOfThese[disprover]?.insert(.weaponCard(statement.weapon))
+            
+        case .couldntRefute(let statement, let person):
+            
+            knowledge.antiCards[person]?.insert(.roomCard(statement.room))
+            knowledge.antiCards[person]?.insert(.playerCard(statement.person))
+            knowledge.antiCards[person]?.insert(.weaponCard(statement.weapon))
+            
+        case .suggestionUnrefuted(_):
+            // alright at this point, whoever made the suggestion should really just accuse, so there's no use in
+            // coding this right now.
+            break
+            
+        case .accuse(_, _):
+            // this is already handled
+            break
+        case .travel(_):
+            // We don't care about traveling
+            break
+        }
     }
     
     func makeTurn() {
@@ -194,7 +241,7 @@ class BasicAI: ComputerPlayer {
             // if there are any overlaps, go to those rooms! If not, indicate that we WANT to go towards one of the suspicious rooms.
             let closeRooms = getCloseRooms()
             
-            if let nextRoom = overlap(suspiciousRooms, closeRooms).first {
+            if let nextRoom = suspiciousRooms.intersection(closeRooms).first {
                 game.handleTravel(to: nextRoom, arrived: true)
             } else {
                 // we want to travel toward one of the suspicious rooms!
@@ -204,48 +251,38 @@ class BasicAI: ComputerPlayer {
             }
         }
         
-        // if we are IN one of those rooms, we are right where we need to be!
-        switch location {
-        case .inRoom(let room):
+        if inSuspiciousRoom() {
+            // we are right where we need to be! Make a suspicion.
             
-            if isSuspicious(room) {
-                // we are right where we need to be! Make a suspicion.
-                
-                let personToGuess = suspiciousPeople.first!
-                let weaponToGuess = suspiciousWeapons.first!
-                
-                // BasicAI is not smart enough to not giveaway too much information in its suggestions.
-                
-                game.handleSuspect((person: personToGuess, weapon: weaponToGuess, room: room)) { notableEvent in
-                    switch notableEvent {
-                        
-                    case .couldntRefute(_, person: let person):
-                        
-                        // handle this
-                        
-                        break
-                        
-                    case .suggestionUnrefuted((let person, let weapon, let room)):
-                        
-                        // handle this
-                        
-                        break
-                        
-                    case .suggestionDisproved(_, disprover: let disprover):
-                        // this is handled with "show"
-                        break
-                    default:
-                        fatalError("This should never happen")
-                    }
+            let personToGuess = suspiciousPeople.first!
+            let weaponToGuess = suspiciousWeapons.first!
+            
+            // BasicAI is not smart enough to not giveaway too much information in its suggestions.
+            
+            game.handleSuspect((person: personToGuess, weapon: weaponToGuess, room: currentRoom!)) { [self] notableEvent in
+                switch notableEvent {
+                    
+                case .couldntRefute(_, person: let person):
+                    
+                    knowledge.antiCards[person]?.insert(.roomCard(currentRoom!))
+                    knowledge.antiCards[person]?.insert(.playerCard(personToGuess))
+                    knowledge.antiCards[person]?.insert(.weaponCard(weaponToGuess))
+                    
+                    break
+                    
+                case .suggestionUnrefuted((let person, let weapon, let room)):
+                    
+                    game.handleAccuse((person: person, weapon: weapon, room: room))
+                    
+                    break
+                    
+                case .suggestionDisproved(_, disprover: _):
+                    // this is handled with "show"
+                    break
+                default:
+                    fatalError("This should never happen")
                 }
-                
-            } else {
-                // we've already dealt with this scenerio.
-                break
             }
-            
-        case .walking:
-            break
         }
         
         

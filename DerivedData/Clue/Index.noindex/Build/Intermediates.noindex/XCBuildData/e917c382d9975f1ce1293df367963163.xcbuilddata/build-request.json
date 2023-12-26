@@ -1,0 +1,60 @@
+{
+  "buildCommand" : {
+    "command" : "prepareForIndexing",
+    "enableIndexBuildArena" : true,
+    "targets" : null
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "68c5cd8a751815968aec79b965dfbf5d47297e8c7944cf87d7864ae99a931fe8"
+    }
+  ],
+  "containerPath" : "/Users/sylvanm/Programming/Just for fun/Clue/Clue.xcodeproj",
+  "continueBuildingAfterErrors" : true,
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "indexbuild",
+    "activeArchitecture" : "arm64",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : false,
+      "platform" : "macosx",
+      "sdk" : "macosx14.2",
+      "sdkVariant" : "macos",
+      "supportedArchitectures" : [
+        "arm64e",
+        "arm64",
+        "x86_64"
+      ],
+      "targetArchitecture" : "arm64"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Products",
+      "derivedDataPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/PrecompiledHeaders",
+      "indexRegularBuildIntermediatesPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Build/Intermediates.noindex",
+      "indexRegularBuildProductsPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Build/Products",
+      "pchPath" : "/Users/sylvanm/Programming/Just for fun/Clue/DerivedData/Clue/Index.noindex/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "synthesized" : {
+        "table" : {
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "NO",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "qos" : "utility",
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

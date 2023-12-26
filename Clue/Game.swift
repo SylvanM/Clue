@@ -65,6 +65,7 @@ enum Room: CaseIterable, CustomStringConvertible {
     case conservatory
     case billiard
     case hall
+    case library
     case lounge
     
     var description: String {
@@ -85,6 +86,8 @@ enum Room: CaseIterable, CustomStringConvertible {
             return "hall"
         case .lounge:
             return "lounge"
+        case .library:
+            return "library"
         }
     }
     
@@ -106,6 +109,8 @@ enum Room: CaseIterable, CustomStringConvertible {
             self = .hall
         case "lounge":
             self = .lounge
+        case "library":
+            self = .library
         default:
             return nil
         }

@@ -1,0 +1,13 @@
+version: "Apple Swift version 5.8.1 (swiftlang-5.8.0.124.5 clang-1403.0.22.11.100)"
+options: "d0ec8b785cf3d482ec0decce9a06a3b18f5161ae2f45279906bda577abbca180"
+build_start_time: [1690649690, 455978000]
+build_end_time: [1690649690, 508111000]
+inputs:
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/BasicAI.swift": !private [1673901133, 728051026]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/ComputerPlayer.swift": !private [1673796371, 80803385]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/DummyAI.swift": !private [1673830736, 471575919]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Game.swift": !private [1673832485, 899720219]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Human.swift": !private [1673840414, 968174124]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Knowledge.swift": !private [1673841681, 928956209]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/Player.swift": !private [1673830722, 106643080]
+  "/Users/sylvanm/Programming/Just for fun/Clue/Clue/main.swift": !private [1673901133, 723464805]

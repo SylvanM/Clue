@@ -8,28 +8,26 @@
 import Foundation
 
 let manifesto: [Person : Int] = [
-    .mustard : 6,
-    .plum : 6,
+    .scarlet : 6,
     .green : 6,
-    .white : 6
+    .mustard : 6,
 ]
 
 let aiCards: [Card] = [
-    .roomCard(.lounge),
-    .roomCard(.billiard),
     .weaponCard(.knife),
-    .playerCard(.white),
     .roomCard(.ballroom),
-    .weaponCard(.pipe)
+    .weaponCard(.pipe),
+    .playerCard(.mustard),
+    .roomCard(.billiard),
+    .weaponCard(.revolver)
 ]
 
-let aiKnowledge = Knowledge(asPlayer: .white, players: manifesto, myCards: aiCards)
+let aiKnowledge = Knowledge(asPlayer: .green, players: manifesto, myCards: aiCards)
 
 let players: [Player] = [
-    Human("Sylvan", asCharacter: .mustard),
-    Human("Celeste", asCharacter: .plum),
-    Human("Camille", asCharacter: .green),
-    DummyAI("Random AI", withStartingKnowledge: aiKnowledge)
+    Human("Dummy Human", asCharacter: .mustard),
+    Human("Celeste (AI)", asCharacter: .scarlet),
+    BasicAI("Sylvan (AI)", withStartingKnowledge: aiKnowledge)
 ]
 
 let game = Game(players: players)

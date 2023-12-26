@@ -71,6 +71,7 @@
 		AE21D58A29638E0200004778 /* Clue */ = {
 			isa = PBXGroup;
 			children = (
+				AEF699062B3B43D500B34C4C /* Training */,
 				AE721DB02974521800862782 /* BasicAI.swift */,
 				AE721DAE2973CFB500862782 /* ComputerPlayer.swift */,
 				AE21D58B29638E0200004778 /* main.swift */,
@@ -81,6 +82,13 @@
 				AE21D5A02965409000004778 /* DummyAI.swift */,
 			);
 			path = Clue;
+			sourceTree = "<group>";
+		};
+		AEF699062B3B43D500B34C4C /* Training */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Training;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -35,8 +35,8 @@ class DummyAI: ComputerPlayer {
     
     var game: Game!
     
-    var cards: [Card] {
-        knowledge.cards[character]!
+    var cards: Set<Card> {
+        knowledge.knownCards[character]!
     }
     
     var location: PlayerLocation {
@@ -60,7 +60,7 @@ class DummyAI: ComputerPlayer {
         
     }
     
-    func revealCards() -> [Card] {
+    func revealCards() -> Set<Card> {
         cards
     }
     
@@ -70,13 +70,7 @@ class DummyAI: ComputerPlayer {
     }
     
     func show(_ card: Card, from person: Person) {
-        var i = 0
-        
-        while knowledge.cards[person]![i] != .unknown { i += 1 }
-        
-        if knowledge.cards[person]!.indices.contains(i) {
-            knowledge.cards[person]![i] = card
-        }
+        knowledge.knownCards[person]!.insert(card)
         
         // Cross that card off the notebook
         

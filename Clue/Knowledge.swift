@@ -47,19 +47,21 @@ class Knowledge {
     /**
      * Where everyone on the board currently is
      */
-    var locations: [Person : PlayerLocation]
+    var locations: [Person : PlayerLocation] {
+        game.locations
+    }
     
     /**
      * The cards everyone (including this player) in the game is holding, if they are known!
      */
-    var cards: [Person : [Card]]
+    var knownCards: [Person : Set<Card>]
     
     /**
      * Keep track of what players certainly DON'T have certain cards
      *
      * This dictionary does NOT include `self.character` as a key.
      */
-    var antiCards: [Person : [Card]]
+    var antiCards: [Person : Set<Card>]
     
     /**
      * Sometimes a player disproves a suggestion and you know they must have ONE of those cards!
@@ -82,20 +84,19 @@ class Knowledge {
      */
     init(asPlayer: Person, players: [Person : Int], myCards: [Card]) {
         self.me = asPlayer
-        self.cards = [:]
-        self.locations = [:]
+        self.knownCards = [:]
         self.antiCards = [:]
         self.oneOfThese = [:]
         
-        for (player, cardCount) in players {
-            cards[player] = [Card](repeating: .unknown, count: cardCount)
-            locations[player] = .walking
+        for (player, _) in players {
+            knownCards[player] = Set<Card>()
             if player != me {
                 antiCards[player] = []
             }
         }
         
-        cards[me] = myCards
+        
+        knownCards[me] = Set(myCards)
         
         // update the notebook with the knowledge we now have!
         

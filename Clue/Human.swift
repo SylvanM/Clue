@@ -35,11 +35,11 @@ class Human: Player {
     }
     
     func show(_ card: Card, from person: Person) {
-        print("\(person) shows you the card: \(card)")
+        print("\(person) shows \(name) the card: \(card)")
     }
     
-    func revealCards() -> [Card] {
-        var cards: [Card] = []
+    func revealCards() -> Set<Card> {
+        var cards: Set<Card> = []
         var input: String
         
         print("Please enter all of \(name)'s cards separated by lines. enter 'done' when done.")
@@ -47,7 +47,7 @@ class Human: Player {
         repeat {
             input = readLine()!.lowercased()
             if let card = Card(input) {
-                cards.append(card)
+                cards.insert(card)
             } else {
                 print("Please enter that card again.")
                 continue
